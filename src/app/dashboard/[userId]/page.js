@@ -29,6 +29,8 @@ export default async function CardDetailsPage({ params }) {
     const data = await res.json();
     initialCards = data?.cardHolders || [];
 
+    console.log("initialCards >>>>>>", initialCards)
+
   } catch (error) {
     console.error("Error fetching cardholder data:", error);
     return <div className="p-4 text-red-500">Error fetching cardholder details.</div>;

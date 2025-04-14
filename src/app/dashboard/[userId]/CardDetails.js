@@ -1,98 +1,126 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useApi } from "@/hooks/useApi";
 import { FaCalendarAlt } from "react-icons/fa";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { FadeLoader } from "react-spinners";
-import LineChart from "./LineChart";
-import PieChart from "./PieChart";
-import BarChart from "./BarChart";
-import AreaChart from "./AreaChart";
-import DonutChart from "./DonutChart";
-import StackedBarChart from "./StackedBarChart";
+import Charts from "../../../component/charts/Charts";
 import CardList from "./cardList";
 import TransactionHistory from "./transactionHistory";
 
+// Base API URL config
+const BASE_URL = "http://localhost:8082/api";
 
 function CardDetails({ initialCards, userId, token }) {
+  // State Management
   const [cards, setCards] = useState(initialCards);
-  const [selectedCardId, setselectedCardId] = useState(initialCards?.[0]?.id ?? null);
-  const [trasactionData, setTransactionData] = useState([]);
-  const [lineChartData, setLineChartData] = useState({ categories: [], data: [] });
+  const [selectedCardId, setSelectedCardId] = useState(
+    initialCards?.[0]?.id ?? null
+  );
+  const [transactionData, setTransactionData] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  const [fromDate, setFromDate] = useState("");
+  const [toDate, setToDate] = useState("");
+
+  const [lineChartData, setLineChartData] = useState({
+    categories: [],
+    data: [],
+  });
   const [pieChartData, setPieChartData] = useState([]);
   const [barChartData, setBarChartData] = useState([]);
   const [areaChartData, setAreaChartData] = useState([]);
   const [donutChartData, setDonutChartData] = useState([]);
-  const [StackedBarChartData, setStackedBarData] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [stackedBarData, setStackedBarData] = useState([]);
 
-  const [fromDate, setFromDate] = useState("");
-  const [newToDate, setToDate] = useState("");
-  const [cardID, setCardID] = useState();
 
-  const { request } = useApi();
-
+  console.log("transactionData >>>>>>>>>", transactionData)
+  // Utils
   const getFormattedDate = (date) => date.toISOString().split("T")[0];
 
+  // Initial Date Setup
   useEffect(() => {
     const currentDate = new Date();
     const threeMonthsAgo = new Date();
     threeMonthsAgo.setMonth(currentDate.getMonth() - 3);
+
     setFromDate(getFormattedDate(threeMonthsAgo));
     setToDate(getFormattedDate(currentDate));
   }, []);
 
-  useEffect(() => {
-    if (selectedCardId && fromDate && newToDate) {
-      fetchTransactionDetails(selectedCardId, fromDate, newToDate);
-    }
-  }, [selectedCardId, fromDate, newToDate]);
-
-  const fetchTransactionDetails = async (cardId, from, to) => {
-    try {
+  // Fetch Transaction API
+  const fetchTransactionDetails = useCallback(
+    async (cardId, from, to) => {
+      if (!cardId) return;
+  
       setIsLoading(true);
+      try {
+        const url = `http://localhost:8082/api/expenses/by-card/${cardId}/by-date-range?fromDate=${from}&toDate=${to}`;
   
-      const response = await fetch(`http://localhost:8081/api/expenses/by-card/${cardId}/by-date-range?fromDate=${from}&toDate=${to}`, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`,
-        },
-      });
+        const response = await fetch(url, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        });
   
-      if (!response.ok) {
-        throw new Error(`HTTP error! Status: ${response.status}`);
+        if (!response.ok) {
+          const errorText = await response.text();
+          throw new Error(`HTTP ${response.status}: ${errorText}`);
+        }
+  
+        const data = await response.json();
+  
+        if (data && data.transactions) {
+          setTransactionData(data);
+        } else {
+          setTransactionData({ transactions: [] });
+          console.warn("No transaction data received.");
+        }
+  
+      } catch (error) {
+        console.error("Failed to fetch transaction details:", error);
+        setTransactionData({ transactions: [] });
+      } finally {
+        setIsLoading(false);
       }
-  
-      const data = await response.json();
-      setTransactionData(data);
-  
-    } catch (error) {
-      console.error("Error fetching transactions:", error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+    },
+    [token]
+  );
   
 
+  // Load initial data on card selection
   useEffect(() => {
-    if (trasactionData?.transactions?.length > 0) {
-      updateCardData(trasactionData.transactions);
-    } else {
-      setLineChartData([]);
-      setPieChartData([]);
-      setBarChartData([]);
-      setAreaChartData([]);
-      setDonutChartData([]);
-      setStackedBarData([]);
+    if (selectedCardId && fromDate && toDate) {
+      fetchTransactionDetails(selectedCardId, fromDate, toDate);
     }
-  }, [trasactionData]);
+  }, [selectedCardId, fromDate, toDate]);
+  
+  
 
-  const updateCardData = (transactions) => {
-    transactions.sort((a, b) => new Date(a.transactionDateTime) - new Date(b.transactionDateTime));
-    const categories = transactions.map((txn) => new Date(txn.transactionDateTime).toLocaleDateString());
+
+  // Chart Data Transformation
+  useEffect(() => {
+    if (transactionData?.transactions?.length > 0) {
+      updateChartData(transactionData?.transactions);
+    } else {
+      clearChartData();
+    }
+  }, [transactionData]);
+
+  const updateChartData = (transactions) => {
+    transactions.sort(
+      (a, b) =>
+        new Date(a.transactionDateTime) - new Date(b.transactionDateTime)
+    );
+
+    const categories = transactions.map((txn) =>
+      new Date(txn.transactionDateTime).toLocaleDateString()
+    );
     const data = transactions.map((txn) => txn.amount);
+
     setLineChartData({ categories, data });
     setAreaChartData({ categories, data });
 
@@ -102,7 +130,10 @@ function CardDetails({ initialCards, userId, token }) {
       return acc;
     }, {});
 
-    const categoryData = Object.entries(categoryMap).map(([category, amount]) => ({ name: category, y: amount }));
+    const categoryData = Object.entries(categoryMap).map(
+      ([category, amount]) => ({ name: category, y: amount })
+    );
+
     setPieChartData(categoryData);
     setBarChartData(categoryData);
     setDonutChartData(categoryData);
@@ -117,12 +148,23 @@ function CardDetails({ initialCards, userId, token }) {
     setStackedBarData(Object.values(groupedData));
   };
 
+  const clearChartData = () => {
+    setLineChartData({ categories: [], data: [] });
+    setPieChartData([]);
+    setBarChartData([]);
+    setAreaChartData([]);
+    setDonutChartData([]);
+    setStackedBarData([]);
+  };
+
+  // Date Filter Submit
   const handleShowClick = () => {
     if (selectedCardId) {
-      fetchTransactionDetails(selectedCardId, fromDate, newToDate);
+      fetchTransactionDetails(selectedCardId, fromDate, toDate);
     }
   };
 
+  // Custom Date Input
   const CustomDatePickerInput = ({ value, onClick }) => (
     <div className="relative w-full cursor-pointer" onClick={onClick}>
       <input
@@ -135,84 +177,73 @@ function CardDetails({ initialCards, userId, token }) {
     </div>
   );
 
+  // Main Render
   return isLoading ? (
     <div className="flex justify-center items-center h-screen">
       <FadeLoader color="#9a48a9" />
     </div>
   ) : (
     <div className="px-2 lg:px-10">
-      <div className="dashboard-wrap">
-        <div className="flex flex-col md:flex-row justify-between py-3 align-middle md:h-[85vh]">
-          <CardList
-            handleCardSelection={setselectedCardId}
-            cards={cards}
-            selectedCard={selectedCardId}
-            trasactionData={trasactionData}
-            ChuserID={userId} 
+      <div className="dashboard-wrap flex flex-col md:flex-row justify-between py-3 md:h-[85vh]">
+        {/* Card List */}
+        <CardList
+          handleCardSelection={setSelectedCardId}
+          cards={cards}
+          selectedCard={selectedCardId}
+          transactionData={transactionData}
+          ChuserID={userId}
+        />
+
+        {/* Charts + Filters */}
+        <div className="w-full md:w-3/4 md:px-5 overflow-y-auto pb-[100px] scrollbar-hide">
+          {/* Date Filters */}
+          <div className="md:max-w-96 mx-auto mb-10 flex flex-row items-end gap-2 justify-center">
+            <div>
+              <p>
+                <strong>From</strong>
+              </p>
+              <DatePicker
+                selected={fromDate ? new Date(fromDate) : null}
+                onChange={(date) => setFromDate(getFormattedDate(date))}
+                maxDate={toDate ? new Date(toDate) : new Date()}
+                customInput={<CustomDatePickerInput />}
+              />
+            </div>
+            <div>
+              <p>
+                <strong>To</strong>
+              </p>
+              <DatePicker
+                selected={toDate ? new Date(toDate) : null}
+                onChange={(date) => setToDate(getFormattedDate(date))}
+                minDate={fromDate ? new Date(fromDate) : null}
+                maxDate={new Date()}
+                customInput={<CustomDatePickerInput />}
+              />
+            </div>
+            <button
+              type="button"
+              onClick={handleShowClick}
+              className="w-[100px] bg-[#9a48a9] hover:bg-[#6d3078] text-white p-1.5 rounded-md h-[30px]"
+            >
+              Show
+            </button>
+          </div>
+
+          <Charts
+            lineChartData={lineChartData}
+            pieChartData={pieChartData}
+            barChartData={barChartData}
+            areaChartData={areaChartData}
+            donutChartData={donutChartData}
+            stackedBarData={stackedBarData}
           />
 
-          <div className="w-full md:w-3/4 md:px-5 overflow-y-auto pb-[100px] scrollbar-hide">
-            <div className="md:max-w-96 mx-auto mb-10">
-              <div className="flex flex-row items-end gap-2 justify-center">
-                <div>
-                  <p><strong>From</strong></p>
-                  <DatePicker
-                    selected={fromDate ? new Date(fromDate) : null}
-                    onChange={(date) => setFromDate(getFormattedDate(date))}
-                    maxDate={newToDate ? new Date(newToDate) : new Date()}
-                    customInput={<CustomDatePickerInput />}
-                  />
-                </div>
-                <div>
-                  <p><strong>To</strong></p>
-                  <DatePicker
-                    selected={newToDate ? new Date(newToDate) : null}
-                    onChange={(date) => setToDate(getFormattedDate(date))}
-                    minDate={fromDate ? new Date(fromDate) : null}
-                    maxDate={new Date()}
-                    customInput={<CustomDatePickerInput />}
-                  />
-                </div>
-                <button
-                  type="button"
-                  onClick={handleShowClick}
-                  className="w-[100px] bg-[#9a48a9] hover:bg-[#6d3078] text-white p-1.5 border-none rounded-md h-[30px] leading-[19px]"
-                >
-                  Show
-                </button>
-              </div>
-            </div>
-
-            <div className="flex flex-col md:flex-row">
-              <div className="w-full md:w-1/2">
-                <LineChart categories={lineChartData.categories} data={lineChartData.data} />
-              </div>
-              <div className="w-full md:w-1/2">
-                <PieChart pieData={pieChartData} />
-              </div>
-            </div>
-
-            <div className="flex flex-col md:flex-row">
-              <div className="w-full md:w-1/2">
-                <BarChart barData={barChartData} />
-              </div>
-              <div className="w-full md:w-1/2">
-                <AreaChart areaData={areaChartData} />
-              </div>
-            </div>
-
-            <div className="flex flex-col md:flex-row">
-              <div className="w-full md:w-1/2">
-                <DonutChart donutData={donutChartData} />
-              </div>
-              <div className="w-full md:w-1/2">
-                <StackedBarChart stackBarData={StackedBarChartData} />
-              </div>
-            </div>
-
-            <h1 className="text-center text-[24px] my-5 font-bold">Transaction History</h1>
-            <TransactionHistory trasactionData={trasactionData} />
-          </div>
+          {/* Transaction History */}
+          <h1 className="text-center text-[24px] my-5 font-bold">
+            Transaction History
+          </h1>
+          <TransactionHistory transactionData={transactionData} />
         </div>
       </div>
     </div>
