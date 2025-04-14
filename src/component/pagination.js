@@ -31,7 +31,7 @@ function Pagination({ pagenumber, currentpg, onPageChange }) {
           <button
             key={pg}
             onClick={() => onPageChange(pg)}
-            className={`px-3 py-1 rounded ${
+            className={`px-3 py-1 rounded cursor-pointer ${
               pg === currentpg
                 ? "bg-[#6d3078] text-white"
                 : "bg-gray-200 text-black"
