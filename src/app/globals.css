@@ -1,0 +1,23 @@
+@import "tailwindcss";
+
+
+
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+.highcharts-credits {
+  display: none !important;
+}
+.card-bg {
+  background-image: url(/images/card-png.png);
+}
+.scrollbar-hide {
+  scrollbar-width: none;
+}
+.highcharts-legend.highcharts-no-tooltip{
+  display: none!important;
+}
