@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { useParams } from "next/navigation";
 import React from "react";
 import { FadeLoader } from "react-spinners";
 
@@ -7,9 +6,10 @@ function CardList({
   cards,
   handleCardSelection,
   selectedCard,
+  authuser,
 }) {
-  const { userid } = useParams();
-  const authuser = JSON.parse(localStorage.getItem("authuser"));
+  
+  
 
   return (
     <div className="w-full md:w-1/4 md:border-r-[1px] md:pr-5 pb-[50px] flex flex-col justify-between">
@@ -52,8 +52,8 @@ function CardList({
 
                     {authuser === "CH USER" && (
                       <div className="flex flex-row gap-3 md:text-[12px] lg:text-[16px] mt-2 mb-5">
-                        <Link href="/changepin">
-                          <button className="max-w-[200px] md:max-w-full w-full mx-auto bg-[#9a48a9] hover:bg-[#6d3078] text-white p-2 border-none rounded-md">
+                        <Link className="flex w-full" href="/changepin">
+                          <button className="w-full mx-auto bg-[#9a48a9] hover:bg-[#6d3078] text-white p-2 border-none rounded-md">
                             Change Pin
                           </button>
                         </Link>
@@ -73,8 +73,8 @@ function CardList({
 
       {authuser === "CH USER" && (
         <div className="flex flex-row gap-3 md:text-[12px] lg:text-[18px]">
-          <Link href="/editprofile">
-            <button className="max-w-[200px] md:max-w-full w-full mx-auto bg-[#9a48a9] hover:bg-[#6d3078] text-white p-2 border-none rounded-md">
+          <Link className="flex w-full" href="/editprofile">
+            <button className="w-full mx-auto bg-[#9a48a9] hover:bg-[#6d3078] text-white p-2 border-none rounded-md">
               Edit Profile
             </button>
           </Link>

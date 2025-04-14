@@ -12,7 +12,7 @@ import TransactionHistory from "./transactionHistory";
 // Base API URL config
 const BASE_URL = "http://localhost:8082/api";
 
-function CardDetails({ initialCards, userId, token }) {
+function CardDetails({ initialCards, userId, token, authuser }) {
   // State Management
   const [cards, setCards] = useState(initialCards);
   const [selectedCardId, setSelectedCardId] = useState(
@@ -192,6 +192,7 @@ function CardDetails({ initialCards, userId, token }) {
           selectedCard={selectedCardId}
           transactionData={transactionData}
           ChuserID={userId}
+          authuser={authuser}
         />
 
         {/* Charts + Filters */}

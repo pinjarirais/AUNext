@@ -3,6 +3,7 @@ import CardDetails from "./CardDetails";
 
 export default async function CardDetailsPage({ params }) {
   const token = cookies().get("token")?.value;
+  const authuser = cookies().get("authuser")?.value;
   const userId = params.userId;
 
   if (!token) {
@@ -36,5 +37,5 @@ export default async function CardDetailsPage({ params }) {
     return <div className="p-4 text-red-500">Error fetching cardholder details.</div>;
   }
 
-  return <CardDetails initialCards={initialCards} userId={userId} token={token} />;
+  return <CardDetails initialCards={initialCards} userId={userId} token={token} authuser={authuser}/>;
 }
