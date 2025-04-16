@@ -1,12 +1,12 @@
 "use client";
 
 import { setCookie } from "cookies-next";
-//import { useState } from "react";
+import { useState } from "react";
 import { callApi } from "./callApi";
 
 export function useApi() {
-  // const [loading, setLoading] = useState(false);
-  // const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
   const request = async ({
     endpoint,
@@ -14,8 +14,8 @@ export function useApi() {
     method = "GET",
     setEndpointCookie = true,
   }) => {
-    // setLoading(true);
-    // setError(null);
+    setLoading(true);
+    setError(null);
 
     if (setEndpointCookie) {
       setCookie("apiEndpoint", endpoint);
@@ -32,12 +32,12 @@ export function useApi() {
       return response;
     } catch (err) {
       const message = err?.message || "Something went wrong";
-      // setError(message);
+      setError(message);
       return { error: message };
     } finally {
-      // setLoading(false);
+      setLoading(false);
     }
   };
 
-  return { request, /*loading, error*/ };
+  return { request, loading, error };
 }

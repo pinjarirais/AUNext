@@ -18,7 +18,7 @@ function getBaseUrl(endpoint) {
 export async function callApi({ endpoint, payload, method = "GET" }) {
   const cookieStore = cookies();
 
-  const token = cookieStore.get("jwt")?.value;
+  const token = cookieStore.get("token")?.value;
   const storedEndpoint = decodeURIComponent(
     cookieStore.get("apiEndpoint")?.value || endpoint || ""
   );
@@ -74,8 +74,7 @@ export async function callApi({ endpoint, payload, method = "GET" }) {
     console.warn("Payload provided for GET request will be ignored.");
   }
 
-  const res = await fetch(url, options)
-  
+  const res = await fetch(url, options);
 
   const contentType = res.headers.get("content-type");
   let responseData;
@@ -87,8 +86,6 @@ export async function callApi({ endpoint, payload, method = "GET" }) {
   } else {
     responseData = await res.blob();
   }
-
-  console.log("Server Hook responseData >>>>>>>>", responseData)
 
   if (!res.ok) {
     throw new Error(

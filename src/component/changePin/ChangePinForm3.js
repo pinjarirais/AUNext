@@ -7,6 +7,7 @@ import { z } from "zod";
 import { Eye, EyeOff } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useApi } from "@/hooks/useApi";
+import { encryptAES } from "@/utils/crypto";
 
 // Validation Schema for PINs
 const pinSchema = z.object({
@@ -27,8 +28,7 @@ const pinSchema = z.object({
   path: ["confirmPin"],
 });
 
-const ChangePinForm3 = ({ cardNo, encryptAES, toast, CHuserID }) => {
-  const userId = JSON.parse(localStorage.getItem("userId"));
+const ChangePinForm3 = ({ cardNo, toast, userId }) => {  
   const navigate = useRouter();
   const { request } = useApi();
   const [showPassword, setShowPassword] = useState({
@@ -57,13 +57,13 @@ const ChangePinForm3 = ({ cardNo, encryptAES, toast, CHuserID }) => {
       setExpired(true);
       setTimeout(() => {
         if (window.confirm("Session expired! Please try again later.")) {
-          navigate.push(`/cardDetails/${CHuserID}`);
+          navigate.push(`/cardDetails/${userId}`);
         }
       }, 100);
     }, 120000); // 2 minutes expiry time
 
     return () => clearTimeout(timer);
-  }, [navigate, CHuserID]);
+  }, [navigate, userId]);
 
   // Toggle Password Visibility
   const togglePasswordVisibility = (field) => {

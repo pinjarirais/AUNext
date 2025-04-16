@@ -5,55 +5,52 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useApi } from "@/hooks/useApi";
+import { encryptAES } from "@/utils/crypto";
 
-// Zod Validation Schema
 const formSchema = z.object({
   cardNumber: z.string().regex(/^\d{16}$/, "Card Number must be exactly 16 digits"),
   cardExpiry: z.string().regex(/^(0[1-9]|1[0-2])\/\d{2}$/, "Invalid format (MM/YY)"),
   cvv: z.string().regex(/^\d{3}$/, "CVV must be exactly 3 digits"),
 });
 
-const ChangePinForm1 = ({ setCardNo, setGenerateOtp, setVerifyOtp, encryptAES, toast }) => {
+const ChangePinForm1 = ({ setCardNo, setGenerateOtp, setVerifyOtp, toast }) => {
   const { request } = useApi();
-  const [expiry, setExpiry] = useState("");
 
   const {
     register,
     handleSubmit,
     setValue,
-    reset,
     formState: { errors, isValid, isSubmitting },
   } = useForm({
     resolver: zodResolver(formSchema),
     mode: "onChange",
   });
 
-  // Card Expiry Input Handler
+  const [expiry, setExpiry] = useState("");
+
   const handleExpiryChange = (e) => {
-    let value = e.target.value.replace(/\D/g, ""); // Only digits
+    let value = e.target.value.replace(/\D/g, "");
     if (value.length > 4) value = value.slice(0, 4);
     if (value.length > 2) value = `${value.slice(0, 2)}/${value.slice(2)}`;
     setExpiry(value);
     setValue("cardExpiry", value, { shouldValidate: true });
   };
 
-  // CVV Input Handler (only numbers)
-  const handleCvvChange = (e) => {
-    const value = e.target.value.replace(/\D/g, "").slice(0, 3);
-    setValue("cvv", value, { shouldValidate: true });
-  };
-
-  // Form Submit Handler
   const onSubmit = async (data) => {
+    console.log("form1 data >>>>>>>>", data)
     try {
       const payload = encryptAES(JSON.stringify(data));
       const requestBody = { payload };
+
+      console.log("form1 requestBody >>>>>>>>>>>", requestBody)
 
       const response = await request({
         endpoint: "api/cardholders/generateOtp/pinGeneration",
         method: "POST",
         payload: requestBody,
       });
+
+      console.log("form1 response >>>>>>>>>>>>", response)
 
       if (response.error || !response.data) {
         toast.error("Please enter valid card details.");
@@ -66,8 +63,6 @@ const ChangePinForm1 = ({ setCardNo, setGenerateOtp, setVerifyOtp, encryptAES, t
         setGenerateOtp(false);
         setVerifyOtp(true);
         setCardNo(data.cardNumber);
-        reset();
-        setExpiry("");
       }
     } catch (err) {
       toast.error("Something went wrong while generating OTP");
@@ -80,9 +75,8 @@ const ChangePinForm1 = ({ setCardNo, setGenerateOtp, setVerifyOtp, encryptAES, t
 
       {/* Card Number */}
       <div className="field w-full">
-        <label htmlFor="cardNumber" className="block text-sm text-gray-700 font-bold">Card Number</label>
+        <label className="block text-sm text-gray-700 font-bold">Card Number</label>
         <input
-          id="cardNumber"
           {...register("cardNumber")}
           className="w-full rounded-md bg-white px-3 py-1.5 text-base border border-[#a3a5aa] focus:border-[#6d3078] focus:ring-1 focus:ring-[#6d3078] focus:outline-none"
           placeholder="Enter Your Card Number"
@@ -102,7 +96,6 @@ const ChangePinForm1 = ({ setCardNo, setGenerateOtp, setVerifyOtp, encryptAES, t
         <div className="flex gap-3">
           <div className="w-full">
             <input
-              id="cardExpiry"
               type="text"
               placeholder="MM/YY"
               value={expiry}
@@ -118,11 +111,10 @@ const ChangePinForm1 = ({ setCardNo, setGenerateOtp, setVerifyOtp, encryptAES, t
 
           <div className="w-full">
             <input
-              id="cvv"
+              {...register("cvv")}
               type="text"
               placeholder="CVV"
               maxLength={3}
-              onChange={handleCvvChange}
               className="w-full rounded-md bg-white px-3 py-1.5 text-base border border-[#a3a5aa] focus:border-[#6d3078] focus:ring-1 focus:ring-[#6d3078] focus:outline-none"
             />
             {errors.cvv && (
@@ -138,14 +130,10 @@ const ChangePinForm1 = ({ setCardNo, setGenerateOtp, setVerifyOtp, encryptAES, t
       <div className="field w-full mx-auto">
         <button
           type="submit"
-          disabled={!isValid || isSubmitting}
-          className={`${
-            !isValid || isSubmitting
-              ? "bg-[#ba76c6] cursor-not-allowed"
-              : "bg-[#9a48a9] hover:bg-[#6d3078]"
-          } w-full text-white p-2 m-auto border-none rounded-md my-5`}
+          disabled={!isValid}
+          className={`${!isValid ? 'bg-[#ba76c6] cursor-not-allowed' : 'bg-[#9a48a9] hover:bg-[#6d3078]'} w-full text-white p-2 m-auto border-none rounded-md my-5`}
         >
-          {isSubmitting ? "Generating..." : "Generate OTP"}
+          {isSubmitting ? 'Generating...' : 'Generate OTP'}
         </button>
       </div>
     </form>

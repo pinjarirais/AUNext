@@ -6,13 +6,14 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
 import { useApi } from "@/hooks/useApi";
+import { encryptAES } from "@/utils/crypto";
 
 // Validation Schema
 const formSchema = z.object({
   otp: z.string().regex(/^[a-zA-Z0-9]{6}$/, "OTP must be exactly 6 alphanumeric characters"),
 });
 
-const ChangePinForm2 = ({ cardNo, setVerifyOtp, setPin, encryptAES, toast, CHuserID }) => {
+const ChangePinForm2 = ({ cardNo, setVerifyOtp, setPin, toast, userId }) => {
   const [timeLeft, setTimeLeft] = useState(120);
   const router = useRouter();
   const { request } = useApi();
@@ -32,14 +33,14 @@ const ChangePinForm2 = ({ cardNo, setVerifyOtp, setPin, encryptAES, toast, CHuse
     if (timeLeft === 0) {
       setTimeout(() => {
         if (window.confirm("Session expired! Please try again later.")) {
-          router.push(`/cardDetails/${CHuserID}`);
+          router.push(`/cardDetails/${userId}`);
         }
       }, 100);
     }
 
     const interval = setInterval(() => setTimeLeft((prev) => prev - 1), 1000);
     return () => clearInterval(interval);
-  }, [timeLeft, CHuserID, router]);
+  }, [timeLeft, userId, router]);
 
   // Format time in mm:ss
   const formatTime = (seconds) => {
@@ -58,17 +59,22 @@ const ChangePinForm2 = ({ cardNo, setVerifyOtp, setPin, encryptAES, toast, CHuse
 
   // OTP Submit Handler
   const onSubmit = async (data) => {
+    console.log("form 2 data", data)
     try {
       const payload = encryptAES(JSON.stringify({
         cardNumber: cardNo,
         otp: data.otp
       }));
 
+      console.log("form 2 payload", payload)
+
       const response = await request({
         endpoint: "api/cardholders/validateOtp",
         method: "POST",
         payload: { payload }
       });
+
+      console.log("form 2 response",response)
 
       if (response?.status === 200) {
         toast.success(response.data || "OTP verified successfully!");

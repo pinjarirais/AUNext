@@ -5,9 +5,9 @@ import ChangePinForm1 from "./ChangePinForm1";
 import ChangePinForm2 from "./ChangePinForm2";
 import ChangePinForm3 from "./ChangePinForm3";
 import toast, { Toaster } from "react-hot-toast";
-import { encryptAES } from "@/utils/crypto";
 
-function ChangePinClient() {
+
+function ChangePinClient({userId}) {
   const [cardNo, setCardNo] = useState("");
   const [generateOtp, setGenerateOtp] = useState(true);
   const [verifyOtp, setVerifyOtp] = useState(false);
@@ -19,6 +19,8 @@ function ChangePinClient() {
     }
   }, [generateOtp, verifyOtp, pin]);
 
+  console.log("clientWrapper generate pin cardNo", cardNo)
+
   return (
     <>
       <Toaster position="top-center" reverseOrder={false} />
@@ -27,7 +29,6 @@ function ChangePinClient() {
           setCardNo={setCardNo}
           setGenerateOtp={setGenerateOtp}
           setVerifyOtp={setVerifyOtp}
-          encryptAES={encryptAES}
           toast={toast}
         />
       )}
@@ -36,15 +37,15 @@ function ChangePinClient() {
           cardNo={cardNo}
           setVerifyOtp={setVerifyOtp}
           setPin={setPin}
-          encryptAES={encryptAES}
           toast={toast}
+          userId={userId}
         />
       )}
       {pin && (
         <ChangePinForm3
           cardNo={cardNo}
-          encryptAES={encryptAES}
           toast={toast}
+          userId={userId}
         />
       )}
     </>
