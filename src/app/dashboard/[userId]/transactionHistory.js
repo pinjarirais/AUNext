@@ -1,10 +1,7 @@
 import Link from "next/link";
 import React from "react";
 
-function TransactionHistory({ transactionData }) {
-    
-    const authuser = JSON.parse(localStorage.getItem("authuser"));
-  console.log("trasactionData page",transactionData)
+function TransactionHistory({ transactionData, authuser }) {
   return (
     <>
       <div className="overflow-x-auto">
@@ -19,8 +16,8 @@ function TransactionHistory({ transactionData }) {
             </tr>
           </thead>
           <tbody>
-            {transactionData?.transactions?.length > 0 ? (
-              transactionData?.transactions.map((txn, index) => (
+            {transactionData?.length > 0 ? (
+              transactionData?.map((txn, index) => (
                 <tr key={index} className="odd:bg-white even:bg-[#F2F2F2]">
                   <td className="px-4 py-2">{txn.category}</td>
                   <td className="px-4 py-2">{txn.transactionId}</td>

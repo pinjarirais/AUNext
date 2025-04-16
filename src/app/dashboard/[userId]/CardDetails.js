@@ -10,14 +10,17 @@ import CardList from "./cardList";
 import TransactionHistory from "./transactionHistory";
 
 // Base API URL config
-const BASE_URL = "http://localhost:8082/api";
+//const BASE_URL = "http://localhost:8082/api";
 
-function CardDetails({ initialCards, userId, token, authuser }) {
+function CardDetails({ initialCards, userId, authuser }) {
   // State Management
   const [cards, setCards] = useState(initialCards);
   const [selectedCardId, setSelectedCardId] = useState(
     initialCards?.[0]?.id ?? null
   );
+
+  console.log("selectedCardId >>>>>>>>>>>>>>>>>", selectedCardId)
+
   const [transactionData, setTransactionData] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -49,34 +52,34 @@ function CardDetails({ initialCards, userId, token, authuser }) {
     setToDate(getFormattedDate(currentDate));
   }, []);
 
+
+  const {request} = useApi();
+
   // Fetch Transaction API
   const fetchTransactionDetails = useCallback(
-    async (cardId, from, to) => {
-      if (!cardId) return;
+    async (id, fromDate, toDate) => {
+      if (!id) return;
   
       setIsLoading(true);
       try {
-        const url = `http://localhost:8082/api/expenses/by-card/${cardId}/by-date-range?fromDate=${from}&toDate=${to}`;
-  
-        const response = await fetch(url, {
+        const response = await request({
+          endpoint: `api/expenses/by-card/${id}/by-date-range?fromDate=${fromDate}&toDate=${toDate}`,
           method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
         });
-  
-        if (!response.ok) {
+
+        
+        if (!response.status) {
           const errorText = await response.text();
           throw new Error(`HTTP ${response.status}: ${errorText}`);
         }
   
-        const data = await response.json();
+        //const data = await response.json();
+
+        console.log("cardDetail page data >>>>>>>>>>>", response.data)
   
-        if (data && data.transactions) {
-          setTransactionData(data);
-        } else {
-          setTransactionData({ transactions: [] });
+        if (response.data && response.data.transactions) {
+          setTransactionData(response.data.transactions);
+        } else {          
           console.warn("No transaction data received.");
         }
   
@@ -87,7 +90,7 @@ function CardDetails({ initialCards, userId, token, authuser }) {
         setIsLoading(false);
       }
     },
-    [token]
+    []
   );
   
 
@@ -103,8 +106,8 @@ function CardDetails({ initialCards, userId, token, authuser }) {
 
   // Chart Data Transformation
   useEffect(() => {
-    if (transactionData?.transactions?.length > 0) {
-      updateChartData(transactionData?.transactions);
+    if (transactionData?.length > 0) {
+      updateChartData(transactionData);
     } else {
       clearChartData();
     }
@@ -244,7 +247,7 @@ function CardDetails({ initialCards, userId, token, authuser }) {
           <h1 className="text-center text-[24px] my-5 font-bold">
             Transaction History
           </h1>
-          <TransactionHistory transactionData={transactionData} />
+          <TransactionHistory transactionData={transactionData}  authuser={authuser}/>
         </div>
       </div>
     </div>

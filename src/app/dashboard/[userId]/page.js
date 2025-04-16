@@ -1,10 +1,10 @@
 import { cookies } from "next/headers";
 import CardDetails from "./CardDetails";
 
-export default async function CardDetailsPage({ params }) {
+export default async function CardDetailsPage() {
   const token = cookies().get("token")?.value;
   const authuser = cookies().get("authuser")?.value;
-  const userId = params.userId;
+  const userId = cookies().get("userId")?.value;
 
   if (!token) {
     return <div className="p-4 text-red-500">Unauthorized: No token found.</div>;
