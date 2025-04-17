@@ -4,8 +4,8 @@ import { useForm } from "react-hook-form";
 import { DevTool } from "@hookform/devtools";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useApi } from "@/hooks/useApi";
-import { encryptAES } from "@/utils/crypto";
+import { useApi } from "@/hooks/use-api";
+import { EncryptAES } from "@/utils/crypto";
 
 
 function Mobile({onSuccess }) {  
@@ -38,7 +38,7 @@ function Mobile({onSuccess }) {
 
       const payload = JSON.stringify({ phone: data.mobileNumber });
 
-      const encryptedPayload = encryptAES(payload);
+      const encryptedPayload = EncryptAES(payload);
       const requestBody = { payload: encryptedPayload };
 
       const response = await request({

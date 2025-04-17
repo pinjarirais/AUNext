@@ -5,9 +5,9 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
 import { setCookie } from "cookies-next";
-import { useApi } from "@/hooks/useApi";
-import { encryptAES } from "@/utils/crypto";
-import CountdownTimer from "../countTimeFunc";
+import { useApi } from "@/hooks/use-api";
+import { EncryptAES } from "@/utils/crypto";
+import CountdownTimer from "../count-time-func";
 
 function OTP({ mobnum, resMobMessage }) {
   const navigate = useRouter();
@@ -38,7 +38,7 @@ function OTP({ mobnum, resMobMessage }) {
         otp: data.otpfield,
       });
 
-      const encryptedPayload = encryptAES(payload);
+      const encryptedPayload = EncryptAES(payload);
       const requestBody = { payload: encryptedPayload };
 
       const response = await request({

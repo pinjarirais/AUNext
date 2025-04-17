@@ -1,5 +1,5 @@
 import { cookies } from "next/headers";
-import CardDetails from "./CardDetails";
+import CardDetails from "./card-details";
 
 export default async function CardDetailsPage() {
   const token = cookies().get("token")?.value;

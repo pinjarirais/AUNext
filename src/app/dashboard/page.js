@@ -1,7 +1,7 @@
 "use server";
 import { cookies } from "next/headers";
-import AusTable from "@/component/dashboard/ausTable";
-import ChTable from "@/component/dashboard/chTable";
+import AusTable from "@/component/dashboard/aus-table";
+import ChTable from "@/component/dashboard/ch-table";
 
 export default async function Page({searchParams}) {
   const cookieStore = await cookies();

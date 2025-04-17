@@ -2,7 +2,8 @@
 import loginImg from '/public/images/walk_bank_facility.webp';
 import logoImg from '/public/images/AU-Bank-logo.png';
 import Image from 'next/image';
-import LoginWrapper from '@/component/login/loginWrapper';
+import LoginWrapper from '@/component/login/login-wrapper';
+
 
 
 
@@ -15,6 +16,7 @@ export default async function Home() {
               className="self-center justify-self-center m-auto"
               src={loginImg}
               alt="loginimg"
+              priority
             />
           </div>
           <div className="login-form w-full md:w-1/2 p-5">

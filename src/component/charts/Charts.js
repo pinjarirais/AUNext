@@ -1,11 +1,11 @@
 "use client";
 import React from "react";
-import LineChart from "./LineChart";
-import PieChart from "./PieChart";
-import BarChart from "./BarChart";
-import AreaChart from "./AreaChart";
-import DonutChart from "./DonutChart";
-import StackedBarChart from "./StackedBarChart";
+import LineChart from "./line-chart";
+import PieChart from "./pie-chart";
+import BarChart from "./bar-chart";
+import AreaChart from "./area-chart";
+import DonutChart from "./donut-chart";
+import StackedBarChart from "./stacked-bar-chart";
 
 function Charts({ 
   lineChartData, 
