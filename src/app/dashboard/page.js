@@ -3,8 +3,8 @@ import { cookies } from "next/headers";
 import AusTable from "@/component/dashboard/ausTable";
 import ChTable from "@/component/dashboard/chTable";
 
-export default async function Page({searchParams }) {
-  const cookieStore = cookies();
+export default async function Page({searchParams}) {
+  const cookieStore = await cookies();
   const token = cookieStore.get("token")?.value;
   const authuser = cookieStore.get("authuser")?.value;
   const userId = cookieStore.get("userId")?.value;
@@ -24,9 +24,9 @@ export default async function Page({searchParams }) {
   });
 
   const userData = await res.json();
-  const AUStotalLength = userData?.totalElements;
+  const AUStotalLength = userData?.totalElements;  
 
-  console.log("AUStotalLength >>>>>>", AUStotalLength)
+  console.log("Dashboard API Call >>>>>>", userData)
 
   return (
     <div className="px-10">

@@ -16,7 +16,7 @@ function getBaseUrl(endpoint) {
 }
 
 export async function callApi({ endpoint, payload, method = "GET" }) {
-  const cookieStore = cookies();
+  const cookieStore = await cookies();
 
   const token = cookieStore.get("token")?.value;
   const storedEndpoint = decodeURIComponent(

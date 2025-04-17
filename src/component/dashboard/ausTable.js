@@ -4,8 +4,14 @@ import Pagination from "../pagination";
 import { ExportToExcel } from "../ExportToExcel";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
+import Cookies from "js-cookie";
 
-function AusTable({ userData, AUStotalLength, currentpg }) {
+function AusTable({ userData, AUStotalLength, currentpg }) {  
+  if(userData){
+    console.log("Dashboard AUS page set cookies >>>>>>>", userData)
+    Cookies.set("pfname", userData.ausUser.name)
+    Cookies.set("pfemail", userData.ausUser.email)
+  }
   const router = useRouter();
   const datalength = userData?.cardHolders?.length;
 
