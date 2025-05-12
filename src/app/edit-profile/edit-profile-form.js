@@ -10,6 +10,8 @@ import { useApi } from "@/hooks/use-api";
 import { EncryptAES } from "@/utils/crypto";
 import Cookies from "js-cookie";
 
+const cardholders_service = process.env.CARDHOLDER_SERVICE;
+
 // Validation Schema
 const formSchema = z.object({
   name: z
@@ -63,7 +65,7 @@ function EditProfileForm ({ userId, token }){
       const encryptedPayload = EncryptAES(payload);
 
       const response = await axios.put(
-        `http://localhost:8081/api/cardholders/editProfile/${userId}`,
+        `${cardholders_service}/api/cardholders/editProfile/${userId}`,
         { payload: encryptedPayload },
         {
           headers: {
@@ -95,7 +97,7 @@ function EditProfileForm ({ userId, token }){
 
       try {
         const response = await axios.get(
-          `http://localhost:8081/api/cardholders/chUsers/${userId}`,
+          `${cardholders_service}/api/cardholders/chUsers/${userId}`,
           {
             headers: {
               Authorization: `Bearer ${token}`,

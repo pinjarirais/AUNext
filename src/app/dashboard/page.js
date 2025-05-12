@@ -3,6 +3,9 @@ import { cookies } from "next/headers";
 import AusTable from "@/component/dashboard/aus-table";
 import ChTable from "@/component/dashboard/ch-table";
 
+const cardholders_service = process.env.CARDHOLDER_SERVICE;
+console.log("ENV ACCESS >>>>>", cardholders_service)
+
 export default async function Page({searchParams}) {
   const cookieStore = await cookies();
   const token = cookieStore.get("token")?.value;
@@ -11,8 +14,8 @@ export default async function Page({searchParams}) {
 
   const currentpg = parseInt(searchParams?.page || "0");
 
-  const AUS = `http://localhost:8081/api/cardholders/ausUsers/1/chUsers?page=${currentpg}&size=10`;
-  const CH = `http://localhost:8081/api/cardholders/chUsers/${userId}`;
+  const AUS = `${cardholders_service}/api/cardholders/ausUsers/1/chUsers?page=${currentpg}&size=10`;
+  const CH = `${cardholders_service}/api/cardholders/chUsers/${userId}`;
 
   const endpoint = authuser === "AUS USER" ? AUS : CH;
 

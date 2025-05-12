@@ -1,6 +1,8 @@
 import { cookies } from "next/headers";
 import CardDetails from "./card-details";
 
+const cardholders_service = process.env.CARDHOLDER_SERVICE;
+
 export default async function CardDetailsPage() {
   const token = cookies().get("token")?.value;
   const authuser = cookies().get("authuser")?.value;
@@ -10,7 +12,7 @@ export default async function CardDetailsPage() {
     return <div className="p-4 text-red-500">Unauthorized: No token found.</div>;
   }
 
-  const apiUrl = `http://localhost:8081/api/cardholders/chUsers/${userId}`;
+  const apiUrl = `${cardholders_service}/api/cardholders/chUsers/${userId}`;
   let initialCards = [];
 
   try {

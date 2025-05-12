@@ -2,10 +2,14 @@
 
 import { cookies } from "next/headers";
 
+const apiGetway_service = process.env.API_GATEWAY_SERVICE;
+const cardholders_service = process.env.CARDHOLDER_SERVICE;
+const expenses_service = process.env.EXPENSE_SERVICE;
+
 const endpointMap = [
-  { pattern: /^api\/auth\//, baseUrl: "http://localhost:8080" },
-  { pattern: /^api\/cardholders\//, baseUrl: "http://localhost:8081" },
-  { pattern: /^api\/expenses\//, baseUrl: "http://localhost:8082" },
+  { pattern: /^api\/auth\//, baseUrl: apiGetway_service },
+  { pattern: /^api\/cardholders\//, baseUrl: cardholders_service },
+  { pattern: /^api\/expenses\//, baseUrl: expenses_service },
 ];
 
 function getBaseUrl(endpoint) {
@@ -30,7 +34,7 @@ export async function callApi({ endpoint, payload, method = "GET" }) {
   const url = `${baseUrl}/${storedEndpoint}`;
   const headers = {};
 
-  if (baseUrl !== "http://localhost:8080") {
+  if (baseUrl !== apiGetway_service) {
     if (!token) throw new Error("No authentication token found");
     headers["Authorization"] = `Bearer ${token}`;
   }

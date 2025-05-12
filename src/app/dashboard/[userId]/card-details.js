@@ -7,7 +7,7 @@ import "react-datepicker/dist/react-datepicker.css";
 import { FadeLoader } from "react-spinners";
 import CardList from "./card-list";
 import TransactionHistory from "./transaction-history";
-import Charts from "@/component/charts/charts";
+import Charts from "@/component/charts/Charts";
 
 // Base API URL config
 //const BASE_URL = "http://localhost:8082/api";
