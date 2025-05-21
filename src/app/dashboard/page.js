@@ -4,7 +4,7 @@ import AusTable from "@/component/dashboard/aus-table";
 import ChTable from "@/component/dashboard/ch-table";
 
 const cardholders_service = process.env.CARDHOLDER_SERVICE;
-console.log("ENV ACCESS >>>>>", cardholders_service)
+
 
 export default async function Page({searchParams}) {
   const cookieStore = await cookies();
@@ -14,11 +14,10 @@ export default async function Page({searchParams}) {
 
   const currentpg = parseInt(searchParams?.page || "0");
 
-  const AUS = `${cardholders_service}/api/cardholders/ausUsers/1/chUsers?page=${currentpg}&size=10`;
+  const AUS = `${cardholders_service}/api/cardholders/ausUsers/${userId}/chUsers?page=${currentpg}&size=10`;
   const CH = `${cardholders_service}/api/cardholders/chUsers/${userId}`;
 
   const endpoint = authuser === "AUS USER" ? AUS : CH;
-
   const res = await fetch(endpoint, {
     headers: {
       Authorization: `Bearer ${token}`,
@@ -28,6 +27,8 @@ export default async function Page({searchParams}) {
 
   const userData = await res.json();
   const AUStotalLength = userData?.totalElements;  
+
+  
 
   console.log("Dashboard API Call >>>>>>", userData)
 

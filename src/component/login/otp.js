@@ -9,6 +9,7 @@ import { useApi } from "@/hooks/use-api";
 import { EncryptAES } from "@/utils/crypto";
 import CountdownTimer from "../count-time-func";
 
+
 function OTP({ mobnum, resMobMessage }) {
   const navigate = useRouter();
   const [isTimer, setIsTimer] = useState(false);

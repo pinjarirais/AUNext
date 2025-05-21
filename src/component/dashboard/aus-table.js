@@ -6,6 +6,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import Cookies from "js-cookie";
 import { setCookie } from "cookies-next";
+import { EncryptAES } from "@/utils/crypto";
 
 function AusTable({ userData, AUStotalLength, currentpg }) {
   const router = useRouter();
@@ -36,13 +37,19 @@ function AusTable({ userData, AUStotalLength, currentpg }) {
     router.push(`/dashboard?page=${pg}`);
   };
 
-  const handleUserClick = (id) => {
-    setCookie("ch_id", id, {
-      httpOnly: false, // NOTE: This will still be client-accessible; move to server if sensitive
-      maxAge: 60 * 60 * 24 * 7,
-      path: "/",
-    });
-  };
+  // const handleUserClick = (id) => {
+  //   setCookie("ch_id", id, {
+  //     httpOnly: false,
+  //     maxAge: 60 * 60 * 24 * 7,
+  //     path: "/",
+  //   });
+  // };
+
+  const handleStoreToken=(item)=>{
+    setCookie("ch_token_id",item,{
+      httpOnly:false,
+    })    
+  }
 
   const fileName = "CHUsers";
   const numberpg = Math.ceil(AUStotalLength / 10);
@@ -82,28 +89,32 @@ function AusTable({ userData, AUStotalLength, currentpg }) {
             </tr>
           </thead>
           <tbody>
-            {userData?.chUsers?.map((item) => (
-              <tr key={item.id}>
-                <td className="border border-gray-300 p-2">{item.id}</td>
-                <td className="border border-gray-300 p-2">
-                  {item.cardHolders?.[0]?.cardNumber || ""}
-                </td>
-                <td className="border border-gray-300 p-2">
-                  <Link
-                    className="text-blue-700 underline"
-                    href={`/dashboard/${item.id}`}
-                    onClick={() => handleUserClick(item.id)}
-                  >
-                    {item.name}
-                  </Link>
-                </td>
-                <td className="border border-gray-300 p-2">
-                  {item.cardHolders?.[0]?.pancardNumber || ""}
-                </td>
-                <td className="border border-gray-300 p-2">{item.email}</td>
-                <td className="border border-gray-300 p-2">{item.phone}</td>
-              </tr>
-            ))}
+            {userData?.chUsers?.map((item) => {
+              const encryptedId = EncryptAES(item.id.toString()); // <--- HERE
+
+              return (
+                <tr key={item.id}>
+                  <td className="border border-gray-300 p-2">{item.id}</td>
+                  <td className="border border-gray-300 p-2">
+                    {item.cardHolders?.[0]?.cardNumber || ""}
+                  </td>
+                  <td className="border border-gray-300 p-2">
+                    <Link
+                      href={`/dashboard/${item.id}`}
+                      className="text-blue-700 underline"
+                      onClick={()=>handleStoreToken(encodeURIComponent(encryptedId))}
+                    >
+                      {item.name}
+                    </Link>
+                  </td>
+                  <td className="border border-gray-300 p-2">
+                    {item.cardHolders?.[0]?.pancardNumber || ""}
+                  </td>
+                  <td className="border border-gray-300 p-2">{item.email}</td>
+                  <td className="border border-gray-300 p-2">{item.phone}</td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       </div>
