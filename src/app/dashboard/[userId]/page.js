@@ -23,6 +23,7 @@ const ch_id = cookieStore.get("ch_token_id")?.value;
   // Compare decryptedId with userId param
   if (decryptedId !== userId) {
        redirect('/');
+   
   }
 
   // Fetch auth token from cookies
