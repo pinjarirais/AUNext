@@ -49,6 +49,9 @@ function OTP({ mobnum, resMobMessage }) {
       });
 
       console.log("otp responce >>>>", response);
+      if(response.error){
+        setResponseError(response.error);
+      }
 
       if (response.status === 200) {
         let authuser = response.data.roleName;
@@ -140,9 +143,9 @@ function OTP({ mobnum, resMobMessage }) {
           maxLength={6}
         />
 
-        {responseError.code && (
+        {responseError && (
           <p className="text-xs w-full block text-red-500 mt-1">
-            {responseError.code}
+            {responseError}
           </p>
         )}
 

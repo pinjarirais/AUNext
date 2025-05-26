@@ -11,6 +11,7 @@ export default function LoginWrapper() {
   const [resMobMessage, setResMobMessage] = useState("");
   const token = Cookies.get("token");
 
+  
   if (token) {
     Cookies.remove("token");
       const allCookies = getCookies();
