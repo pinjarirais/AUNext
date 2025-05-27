@@ -10,7 +10,8 @@ import { useApi } from "@/hooks/use-api";
 import { EncryptAES } from "@/utils/crypto";
 import Cookies from "js-cookie";
 
-const cardholders_service = process.env.CARDHOLDER_SERVICE;
+const cardholders_service = process.env.NEXT_PUBLIC_CARDHOLDER_SERVICE;
+
 
 // Validation Schema
 const formSchema = z.object({
