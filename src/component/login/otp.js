@@ -1,9 +1,9 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useRouter } from "next/navigation";
+import { redirect, useRouter } from "next/navigation";
 import { setCookie } from "cookies-next";
 import { useApi } from "@/hooks/use-api";
 import { EncryptAES } from "@/utils/crypto";
@@ -14,8 +14,17 @@ function OTP({ mobnum, resMobMessage }) {
   const navigate = useRouter();
   const [isTimer, setIsTimer] = useState(false);
   const [responseError, setResponseError] = useState("");
+  const [invaliOtpCount,setInvalidOtpCount]=useState(0)
 
   const { request } = useApi();
+   useEffect(() => {
+    if (invaliOtpCount === 3) {
+       setInvalidOtpCount(0);
+      console.log("inside navigate",invaliOtpCount)
+      redirect("/");
+     
+    }
+  }, [invaliOtpCount]);
 
   const otpschema = z.object({
     otpfield: z.string().min(6, {
@@ -30,7 +39,6 @@ function OTP({ mobnum, resMobMessage }) {
   });
 
   const { errors, isValid } = formState;
-
   async function postdata(data) {
     console.log("otp page response >>>>>>>>>", data);
     try {
@@ -50,10 +58,13 @@ function OTP({ mobnum, resMobMessage }) {
 
       console.log("otp responce >>>>", response);
       if(response.error){
-        setResponseError(response.error);
+        setInvalidOtpCount(invaliOtpCount+1)
+        setResponseError(response.error)
       }
 
+
       if (response.status === 200) {
+         setInvalidOtpCount(0);
         let authuser = response.data.roleName;
         let jwtToken = response.data.token;
         let mobileNumber = response.data.mobileNumber;
