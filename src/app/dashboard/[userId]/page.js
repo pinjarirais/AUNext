@@ -7,6 +7,7 @@ export default async function CardDetailsPage({ params }) {
 
    const cookieStore = await cookies();
 const ch_id = cookieStore.get("ch_token_id")?.value;
+  const authuser = cookieStore.get("authuser")?.value;
 
   const { userId } = params;
   console.log("card details>>>>>>>", userId);
@@ -22,8 +23,7 @@ const ch_id = cookieStore.get("ch_token_id")?.value;
 
   // Compare decryptedId with userId param
   if (decryptedId !== userId) {
-       redirect('/');
-   
+       redirect('/'); 
   }
 
   // Fetch auth token from cookies
@@ -55,5 +55,5 @@ const ch_id = cookieStore.get("ch_token_id")?.value;
   const data = await res.json();
   const initialCards = data?.cardHolders || [];
 
-  return <CardDetails initialCards={initialCards} userId={userId} />;
+  return <CardDetails initialCards={initialCards} userId={userId} authuser={authuser}/>;
 }
